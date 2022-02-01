@@ -6,6 +6,10 @@ pip3 install rdflib
 ```
 
 ## Usage examples
+ - Local turtle file:
+ ```shell
+python3 owl2jsonschema.py -s -u test.ttl
+```
  - FOAF ontology:
 ```shell
 python3 owl2jsonschema.py -s -f xml -u http://xmlns.com/foaf/spec/index.rdf 
