@@ -62,6 +62,7 @@ def make_schema(_cls, g, q1, visited, skip_ontology_name=False):
     schema = {
         "$id": str(_cls),
         "type": "object",
+        "required": [],
         "properties": {}
     }
 
@@ -74,30 +75,34 @@ def make_schema(_cls, g, q1, visited, skip_ontology_name=False):
 
     for prop in props:
         prop_iri, prop_val, prop_type = prop
+        prop_name = get_prop_name(
+            prop_iri, skip_ontology_name=skip_ontology_name)
         if prop_type == NON_REC_PROPERTY:
             try:
                 _type = TYPE_MAPPING[prop_val]
-                schema["properties"][get_prop_name(prop_iri, skip_ontology_name=skip_ontology_name)] = {
+                schema["required"].append(prop_name)
+                schema["properties"][prop_name] = {
                     "$id": str(prop_iri),
                     "type": _type
                 }
             except:
                 print(f"Invalid property type: {prop_val}")
         elif prop_type == REC_PROPERTY:
-            schema["properties"][get_prop_name(prop_iri, skip_ontology_name=skip_ontology_name)] = make_schema(
+            schema["required"].append(prop_name)
+            schema["properties"][prop_name] = make_schema(
                 prop_val, g, q1, visited)
     visited.pop()
     return schema
 
 
-def parse_graph(g, skip_ontology_name=False):
+def parse_graph(g, skip_ontology_name=False, skip_class_name=False):
     classes = g.query(q0)
     classes = [c[0] for c in classes]
 
     schemas = {}
 
     for _cls in classes:
-        schemas[get_prop_name(_cls, skip_ontology_name=skip_ontology_name)] = make_schema(
+        schemas[get_prop_name(_cls, skip_ontology_name=skip_class_name)] = make_schema(
             _cls, g, q1, [], skip_ontology_name=skip_ontology_name)
 
     return schemas # json.dumps(, indent='\t')
@@ -118,5 +123,5 @@ if __name__ == "__main__":
     g = rdflib.Graph()
     g.parse(args.url, format=args.format)
 
-    print(json.dumps(parse_graph(g, args.skip_ontology_name), indent='\t'))
+    print(json.dumps(parse_graph(g, args.skip_ontology_name, args.skip_ontology_name), indent='\t'))
     
