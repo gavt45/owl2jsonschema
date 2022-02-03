@@ -5,6 +5,31 @@
 pip3 install rdflib
 ```
 
+## Docker and flask service
+
+### Build
+
+```shell
+docker build -t owl2jsonschema:latest .
+```
+
+### Run
+
+```shell
+docker run -p 5000:80 -e UPDATE_INTERVAL=60 -e OWL_DB=http://xmlns.com/foaf/spec/index.rdf -e OWL_DB_TYPE=xml owl2jsonschema:latest
+```
+
+### Usage
+
+ - `GET /<class name>` - returns json schema by class name without ontology name
+ - `POST /full` body: `iri=<full IRI>` - returns json schema by IRI
+
+### Environment variables
+
+ - `OWL_DB` -- ontology address
+ - `OWL_DB_TYPE` -- ontology type (`xml`, `turtle`, etc)
+ - `UPDATE_INTERVAL` -- ontology fetch interval in seconds
+
 ## Usage examples
  - Local turtle file:
  ```shell
